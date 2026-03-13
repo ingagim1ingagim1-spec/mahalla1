@@ -1,0 +1,1238 @@
+<!DOCTYPE html> 
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="google-site-verification" content="QRdZQ7rfHvnzKftWItKcosYKBTlXOpgR8Jw2Rd3ryRI" />
+    
+    <title>Gjeneza Familjare - Admin</title>
+
+    <meta name="description" content="Faqja zyrtare e familjes Krumverahovic nga Presheva. Histori, fotografi dhe informacion familjar.">
+
+<meta name="keywords" content="Familja Krumverahovic, Preshevë, familje shqiptare, histori familjare">
+
+<meta name="author" content="Familja Krumverahovic">
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body{font-family:sans-serif;background:#f0f2f5;padding:20px;color:#1c1e21;}
+        .container{max-width:1000px;margin:auto;}
+        
+        /* LOGIN STILI */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #1c1e21; display: flex; align-items: center; justify-content: center;
+            z-index: 9999; color: white;
+        }
+        .login-box { background: #fff; padding: 30px; border-radius: 12px; color: #333; width: 300px; text-align: center; }
+        
+        #registrationSection { display: none; }
+        
+        .card{background:white;padding:25px;border-radius:12px;box-shadow:0 2px 15px rgba(0,0,0,0.08);margin-bottom:20px;}
+        label{display:block;margin-bottom:5px;font-weight:bold;color:#4b4f56;font-size:14px;}
+        input, textarea{width:100%;padding:10px;margin-bottom:12px;border-radius:6px;border:1px solid #dddfe2;box-sizing:border-box;font-size:14px;}
+        .btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;transition:0.2s;font-size:14px;}
+        .btn-save{background:#1877f2;color:white;}
+        .btn-edit{background:#e4e6eb;color:#050505;}
+        .btn-delete{background:#fa3e3e;color:white;}
+        .btn-add{background:#27ae60;color:white;}
+        .btn-activate{background:#f39c12; color:white; margin-bottom:15px;}
+        .btn-child-add{background:#8e44ad;color:white;padding:2px 5px; font-size:10px;}
+
+        .form-children-section{border:2px dashed #3498db; padding:15px; border-radius:10px; background:#f8faff; margin-bottom:20px;}
+        .child-form-row{background:white; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #d1d9e6; position:relative;}
+        
+        .member-item{background:white;padding:20px;border-radius:12px;margin-bottom:20px;border:1px solid #dddfe2;}
+        .member-header{display:flex;gap:20px;align-items:center;border-bottom:1px solid #eee;padding-bottom:15px;}
+        .member-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #1877f2;}
+        .child-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(350px, 1fr));gap:15px;margin-top:15px;}
+        .child-item{background:#f7f8fa;padding:12px;border-radius:10px;border:1px solid #e4e6eb;}
+        .child-header{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+        .child-photo-small{width:50px;height:50px;border-radius:50%;object-fit:cover;}
+        .grandchild-grid{margin-left:25px;margin-top:8px;padding-left:10px;border-left:2px solid #3498db;}
+        .grandchild-item{background:#fff;padding:10px;border-radius:6px;margin-bottom:5px;border:1px solid #d4e1f5;}
+        .grandchild-header{display:flex;align-items:center;gap:8px;}
+        .great-grandchild-grid{margin-left:20px;margin-top:5px;padding-left:8px;border-left:2px solid #8e44ad;}
+        .member-details{font-size:12px;color:#666;margin:2px 0;}
+        .action-buttons{display:flex;gap:3px;margin-left:auto;}
+
+        #childModal, #treeModal, #addDescendantModal {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000; overflow-y: auto;}
+        .modal-content{background:white;width:90%;max-width:450px;margin:30px auto;padding:25px;border-radius:15px;}
+        .tree-modal-content { max-width: 800px; background: white; margin: 30px auto; padding: 40px; border-radius: 8px; }
+        
+        .search-bar{background:#1c1e21;padding:20px;border-radius:12px;margin-bottom:25px; display: grid; gap: 10px;}
+        .search-bar input{margin-bottom:0;background:white;font-size:1.1em; flex: 1;}
+        .hidden{display:none !important;}
+
+        /* kesaj i kam shtuar stylen per te bere tekstin e historise me nje rresht dhe me pika ... nese eshte shume i gjate
+        .history-text{font-size: 0.9em; color: #606770; margin-top: 5px; font-style: italic;}
+        */
+
+        /* kjo per style i kam shtuar per te bere tekstin e historise me maksimum 3 rreshta dhe me pika ... nese eshte shume i gjate 
+
+        .history-text{
+            font-size: 0.9em;
+            color: #606770;
+            margin-top: 5px;
+            font-style: italic;
+        
+            display: -webkit-box;
+            -webkit-line-clamp: 3; 
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+    }
+            */
+
+            /* sa rreshta don me shfaq */
+            .history-text {
+
+                font-size: 0.9em;
+                color: #606770;
+                margin-top: 5px;
+                font-style: italic;
+    
+                display: -webkit-box;
+                -webkit-line-clamp: 1; /* numri i rreshtave që dëshiron të shfaqësh */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .history-text:hover {
+                -webkit-line-clamp: unset;
+                overflow: visible;
+            }
+
+           
+
+
+
+ 
+
+
+            
+
+
+
+
+            
+        .tree-plain { font-family: monospace; white-space: pre; line-height: 1.5; font-size: 14px; color: #333; background: #fff; padding: 20px; }
+        .path-indicator{font-size:11px;color:#666;margin-bottom:5px;font-style:italic;}
+        .photo-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:10px 0;border:2px solid #1877f2;}
+        .form-row{display:flex;gap:10px;margin-bottom:0;}
+        .form-row input{flex:1;}
+        .file-input-wrapper{margin-bottom:12px;}
+        .file-input-wrapper label{display:block;margin-bottom:5px;}
+        .photo-thumb{width:40px;height:40px;border-radius:50%;object-fit:cover;margin-right:10px;}
+    </style>
+</head>
+<body>
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <h3>🔐 Kyçja në Sistem</h3>
+        <input type="text" id="user" placeholder="Përdoruesi">
+        <input type="password" id="pass" placeholder="Fjalëkalimi">
+        <button class="btn btn-save" style="width:100%" onclick="checkLogin()">Hyr</button>
+        <p id="errorMsg" style="color:red; font-size:12px; margin-top:10px;"></p>
+    </div>
+</div>
+
+<div class="container" id="mainContent" style="display:none;">
+    <div style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h2>🌳 Menaxhimi i Gjenezës</h2>
+        <h2>Mahalla Krumve fsh.Rahovice Presheve</h2>
+        <div>
+            <button class="btn btn-edit" onclick="changeAdminUser()" style="padding:5px 10px;">👤 User</button>
+            <button class="btn btn-edit" onclick="changeAdminPassword()" style="padding:5px 10px;">🔑 Pass</button>
+            <button class="btn btn-delete" onclick="location.reload()" style="padding:5px 10px;">Dil</button>
+        </div>
+    </div>
+
+    <!-- kam shtuar Statistikat e Gjenezës -->
+     <div class="card" style="display: flex; justify-content: space-around; text-align: center; background: #eef2f7; padding: 15px; border-radius: 12px;">
+         <div>
+             <h2 id="statTotal" style="color: #1877f2; margin: 0;">0</h2>
+             <p style="margin: 0; font-size: 13px; color: #666;">Anëtarë Gjithsej</p>
+         </div>
+          
+         <!-- Kam shtuar shfaqjen e numrit të anëtarëve të gjallë dhe të vdekur në HTML -->
+         <div>
+        <h2 id="statAlive" style="color: #27ae60; margin: 0;">0</h2>
+         <p>🟢 Të Gjallë</p>
+         </div>
+
+         <div>
+        <h2 id="statDead" style="color: #e74c3c; margin: 0;">0</h2>
+        <p>⚫ Të Vdekur</p>
+         </div>
+
+         <div style="border-left: 1px solid #ccc;"></div>
+         <div>
+             <h2 id="statGen" style="color: #27ae60; margin: 0;">0</h2>
+             <p style="margin: 0; font-size: 13px; color: #666;">Gjenerata</p>
+         </div>
+    </div>
+
+
+    <!-- Butonat e Importimit json me bo hide kam shtu id="importContainer" display:none;-->
+    <div id="importContainer" style="margin-bottom: 20px; display:none;">
+        <input type="file" id="importFile" style="display:none" onchange="importJSON(event)">
+        <button class="btn btn-edit" onclick="document.getElementById('importFile').click()">📥 Importo JSON (Backup)</button>
+    </div>
+    <button id="activateEditBtn" class="btn btn-activate" onclick="unlockEditing()">🔓 Aktivizo Regjistrimin & Editimin</button>
+
+    <!-- Forma Kryesore -->
+    <div class="card" id="registrationSection">
+        <form id="familyForm">
+            <input type="hidden" id="editId">
+            
+            <div class="form-row">
+                 <div style="flex:1;">
+                     <label>Emri & Mbiemri</label>
+                     <input type="text" id="fullname" placeholder="Emri & Mbiemri" required>
+                 </div>
+             
+                 <div style="flex:1;">
+                     <label>Babai</label>
+                     <input type="text" id="fatherName" placeholder="Emri i Babait">
+                 </div>
+             
+                 <div style="flex:1;">
+                     <label>Nëna</label>
+                     <input type="text" id="motherName" placeholder="Emri i Nënës">
+                 </div>
+            </div>
+            
+            <div class="form-row">
+                <div style="flex:1;">
+                    <label>Nr. Personal</label>
+                    <input type="text" id="personalNo" placeholder="Nr. Personal">
+                </div>
+                <div style="flex:1;">
+                    <label>Vendlindja</label>
+                    <input type="text" id="birthplace" placeholder="Vendlindja">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div style="flex:1;">
+                    <label>Data e Lindjes</label>
+                    <input type="date" id="dob">
+                </div>
+
+                <!-- Kam shtuar fushën për statusin e anëtarit (i gjallë/i vdekur) -->
+                <div style="margin-bottom:12px;">
+                    <label>Statusi</label>
+                    <select id="status">
+                        <option value="true">🟢 I Gjallë</option>
+                        <option value="false">⚫ I Vdekur</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label>Bashkëshorti/ja</label>
+                    <input type="text" id="spouse" placeholder="Bashkëshorti/ja">
+                </div>
+            </div>
+            
+            <label>Historiku i familjes (biografia)...</label>
+            <textarea id="history" placeholder="Historiku i familjes..." rows="4"></textarea>
+            
+            <label>Foto Kryefamiljarit</label>
+            <input type="file" id="photoInput" accept="image/*">
+            <img id="mainPhotoPreview" class="photo-preview" src="https://via.placeholder.com/80" style="display:none;">
+
+            <!-- Seksioni i Fëmijëve -->
+            <div class="form-children-section">
+                <label style="color:#3498db; margin-bottom:10px;">Shto Fëmijët</label>
+                <div id="formChildrenList"></div>
+                <button type="button" class="btn btn-add" onclick="addChildRow()" style="width:100%;">+ Shto Fëmijë</button>
+            </div>
+
+            <button type="submit" class="btn btn-save" id="mainSubmitBtn" style="width:100%;">Ruaj në Cloud</button>
+            <button type="button" id="cancelBtn" class="btn hidden" onclick="resetForm()">Anulo</button>
+        </form>
+    </div>
+
+    
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Kërko..." onkeyup="searchGlobal()">
+        <button class="btn btn-add" onclick="openTreeView()">📄 Degezimi (PDF)</button>
+   
+        <button class="btn btn-save" onclick="shkarkoJSON()">💾 Shkarko JSON</button>
+    </div>
+
+    <div id="treeDisplay"></div>
+</div>
+
+<!-- Modal per Editim -->
+<div id="childModal">
+    <div class="modal-content">
+        <h3 id="editModalTitle">Edito Anëtarin</h3>
+        <input type="hidden" id="modalEditPath" value="">
+        
+        <div class="form-row">
+          <div style="flex:1;">
+              <label>Emri & Mbiemri</label>
+              <input type="text" id="modalEditName" placeholder="Emri & Mbiemri" required>
+          </div>
+      
+          <div style="flex:1;">
+              <label>Babai</label>
+              <input type="text" id="modalEditFather" placeholder="Emri i Babait">
+          </div>
+      
+          <div style="flex:1;">
+              <label>Nëna</label>
+              <input type="text" id="modalEditMother" placeholder="Emri i Nënës">
+          </div>
+        </div>
+        
+        <div class="form-row">
+            <div style="flex:1;">
+                <label>Nr. Personal</label>
+                <input type="text" id="modalEditPersonalNo" placeholder="Nr. Personal">
+            </div>
+            <div style="flex:1;">
+                <label>Vendlindja</label>
+                <input type="text" id="modalEditBirthplace" placeholder="Vendlindja">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div style="flex:1;">
+                <label>Data e Lindjes</label>
+                <input type="date" id="modalEditDob">
+            </div>
+            <div style="flex:1;">
+                <label>Bashkëshorti/ja</label>
+                <input type="text" id="modalEditSpouse" placeholder="Bashkëshorti/ja">
+            </div>
+        </div>
+        <!-- Kam shtuar fushën për statusin e anëtarit (i gjallë/i vdekur) në modalin e editimit  modalEditStatus" --> 
+        <label>Statusi</label>
+        <select id="modalEditStatus">
+            <option value="true">🟢 I Gjallë</option>
+            <option value="false">⚫ I Vdekur</option>
+        </select>
+        
+        <label>Historiku i familjes (biografia)...</label>
+        <textarea id="modalEditHistory" placeholder="Historiku..." rows="4"></textarea>
+        
+        <label>Foto</label>
+        <input type="file" id="modalEditPhotoInput" accept="image/*">
+        <img id="modalEditPhotoPreview" class="photo-preview" src="https://via.placeholder.com/80">
+        
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn btn-save" onclick="saveEditedMember()" style="flex:1;">Përditëso</button>
+            <button class="btn btn-delete" id="modalDeleteBtn" onclick="deleteCurrentMember()" style="flex:1;">Fshij</button>
+        </div>
+        <button class="btn btn-edit" onclick="closeEditModal()" style="width:100%; margin-top:10px;">Mbyll</button>
+    </div>
+</div>
+
+<!-- Modal per Shtimin e Pasardhësve -->
+<div id="addDescendantModal">
+    <div class="modal-content">
+        <h3 id="addModalTitle">Shto Pasardhës të Ri</h3>
+        <div id="addModalPath" style="font-size:12px;color:#666;margin-bottom:10px;"></div>
+        <input type="hidden" id="addModalParentPath" value="">
+        
+        <div class="form-row">
+             <div style="flex:1;">
+                 <label>Emri & Mbiemri</label>
+                 <input type="text" id="addModalName" placeholder="Emri & Mbiemri" required>
+             </div>
+         
+             <div style="flex:1;">
+                 <label>Babai</label>
+                 <input type="text" id="addModalFather" placeholder="Emri i Babait">
+             </div>
+         
+             <div style="flex:1;">
+                 <label>Nëna</label>
+                 <input type="text" id="addModalMother" placeholder="Emri i Nënës">
+             </div>
+        </div>
+        
+        <div class="form-row">
+            <div style="flex:1;">
+                <label>Nr. Personal</label>
+                <input type="text" id="addModalPersonalNo" placeholder="Nr. Personal">
+            </div>
+            <div style="flex:1;">
+                <label>Vendlindja</label>
+                <input type="text" id="addModalBirthplace" placeholder="Vendlindja">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div style="flex:1;">
+                <label>Data e Lindjes</label>
+                <input type="date" id="addModalDob">
+            </div>
+
+            <!-- Kam shtuar fushën për statusin e anëtarit (i gjallë/i vdekur) në modalin e shtimit të pasardhësve  addModalStatus" -->
+            <label>Statusi</label>
+              <select id="addModalStatus">
+                  <option value="true">🟢 I Gjallë</option>
+                  <option value="false">⚫ I Vdekur</option>
+              </select>
+            <div style="flex:1;">
+                <label>Bashkëshorti/ja</label>
+                <input type="text" id="addModalSpouse" placeholder="Bashkëshorti/ja">
+            </div>
+        </div>
+        
+        <label>Historiku i familjes (biografia)...</label>
+        <textarea id="addModalHistory" placeholder="Historiku..." rows="4"></textarea>
+        
+        <label>Foto</label>
+        <input type="file" id="addModalPhotoInput" accept="image/*">
+        <img id="addModalPhotoPreview" class="photo-preview" src="https://via.placeholder.com/80">
+        
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn btn-save" onclick="saveDescendant()" style="flex:1;">Shto Pasardhës</button>
+            <button class="btn btn-edit" onclick="closeAddModal()" style="flex:1;">Mbyll</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Pemen -->
+<div id="treeModal">
+    <div class="tree-modal-content">
+        <div style="display:flex; justify-content: space-between; margin-bottom: 20px;">
+            <h3>Degezimi Hierarkik </h3>
+            <div>
+                <button class="btn btn-save" onclick="downloadTreePDF()">📥 Shkarko PDF</button>
+                <button class="btn btn-delete" onclick="document.getElementById('treeModal').style.display='none'">X</button>
+            </div>
+        </div>
+        <div id="treePrintArea" class="tree-plain"></div>
+    </div>
+</div>
+
+<script>
+    const ADMIN_CHANGE_PIN = "123456789012"; 
+    const EDIT_UNLOCK_PIN = "123"; 
+    let canEdit = false;
+    let currentEditPath = '';
+
+    function unlockEditing() {
+        const pin = prompt("🔐 Shkruaj kodin 15-shifror:");
+        if (pin === EDIT_UNLOCK_PIN) {
+            canEdit = true;
+            document.getElementById('registrationSection').style.display = 'block';
+            document.getElementById('activateEditBtn').classList.add('hidden');
+
+            // Kam shtuar kontrollin për të shfaqur ose fshehur butonin e importimit bazuar në statusin e regjistrimit  const importDiv     importDiv.style
+            const importDiv = document.getElementById("importContainer");
+             importDiv.style.display = "block";
+
+            renderTree(window.familyData);
+            alert("✅ Modifikimi u aktivizua!");
+        } else if(pin) alert("❌ Kod i gabuar!");
+
+
+
+         
+       // const importDiv = document.getElementById("importContainer");
+//
+       // if (registrationActive) {
+       //     importDiv.style.display = "block";
+       // } else {
+       //     importDiv.style.display = "none";
+       // }
+
+
+
+    }
+
+    async function checkLogin() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        const error = document.getElementById('errorMsg');
+        try {
+            const { ref, get } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+            const snapshot = await get(ref(window.db, 'settings'));
+            const settings = snapshot.val() || { adminUser: "admin", adminPass: "gjeneza2024" };
+            if (u === settings.adminUser && p === settings.adminPass) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            } else { error.innerText = "Përdoruesi ose fjalëkalimi i gabuar!"; }
+        } catch (e) {
+            if(u === "admin" && p === "gjeneza2024") {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            }
+        }
+    }
+
+    async function changeAdminUser() {
+        const pin = prompt("🔐 Shkruaj PIN-in 12-shifror:");
+        if (pin === ADMIN_CHANGE_PIN) {
+            const newUser = prompt("Përdoruesi i ri:");
+            if (newUser) {
+                const { ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+                await set(ref(window.db, 'settings/adminUser'), newUser);
+                alert("✅ Përdoruesi u ndryshua!");
+            }
+        }
+    }
+
+    async function changeAdminPassword() {
+        const pin = prompt("🔐 Shkruaj PIN-in 12-shifror:");
+        if (pin === ADMIN_CHANGE_PIN) {
+            const newPass = prompt("Fjalëkalimi i ri:");
+            if (newPass) {
+                const { ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+                await set(ref(window.db, 'settings/adminPass'), newPass);
+                alert("✅ Fjalëkalimi u ndryshua!");
+            }
+        }
+    }
+
+
+
+    // FUNKSIONI I PLOTË PËR IMPORTIMIN E JSON
+
+</script>
+
+<script type="module">
+
+    
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+   
+
+   // FUNKSIONI I PLOTË PËR IMPORTIMIN E JSON
+    window.importJSON = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+
+        for (let item of data) {
+            await set(ref(db, 'anetaret/' + item.id), item);
+        }
+
+        alert("✅ Importi i JSON u krye me sukses!");
+    } catch (err) {
+        console.error(err);
+        alert("❌ Gabim gjatë importimit të JSON: " + err.message);
+    }
+
+
+    event.target.value = ""; // lejon zgjedhjen e të njëjtit skedar përsëri
+};
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAe98zkkYvHxabF2lqYbvrAJUa_zOvwxMU",
+      authDomain: "gjenezafamiljareekrumve.firebaseapp.com",
+      databaseURL: "https://gjenezafamiljareekrumve-default-rtdb.europe-west1.firebasedatabase.app/", 
+      projectId: "gjenezafamiljareekrumve",
+      storageBucket: "gjenezafamiljareekrumve.firebasestorage.app",
+      messagingSenderId: "637185266366",
+      appId: "1:637185266366:web:59a79d04362ffb9115c4ef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    window.db = db;
+
+    
+
+    onValue(ref(db, 'anetaret/'), (snapshot) => {
+        window.familyData = snapshot.val() ? Object.values(snapshot.val()) : [];
+        renderTree(window.familyData);
+
+        // Kam shtuar thirrjen e funksionit për të  llogaritur statistikat e gjenezës sa herë që të dhënat ndryshojnë
+        llogaritStatistikat(window.familyData); // SHTO KËTË LINJË KËTU
+    });
+
+    document.getElementById('familyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('editId').value;
+        const id = editId || 'fam_' + Date.now();
+        const existing = window.familyData.find(m => m.id === id);
+        
+        const children = [];
+        document.querySelectorAll('.child-form-row').forEach(row => {
+            const name = row.querySelector('.c-name')?.value;
+            if(name) {
+                children.push({ 
+                    name: name,
+                    
+
+                    // Kam shtuar ruajtjen e emrit të babait dhe nënës për secilin fëmijë në objektin e fëmijës
+                        father: row.querySelector('.c-father')?.value || '',
+                        mother: row.querySelector('.c-mother')?.value || '',
+
+                    personalNo: row.querySelector('.c-personalNo')?.value || '',
+                    dob: row.querySelector('.c-dob')?.value || '',
+                    birthplace: row.querySelector('.c-birthplace')?.value || '',
+                    spouse: row.querySelector('.c-spouse')?.value || '',
+                    history: row.querySelector('.c-history')?.value || '',
+                    photo: row.querySelector('.c-preview')?.src || 'https://via.placeholder.com/40',
+                    alive: row.querySelector('.c-status')?.value === "true",
+                    children: []
+                    
+                    
+                });
+            }
+        });
+
+        //const data =, eshte permisuar per ruajtje gjate editimit, te mos fshihen pasardhesit ekzistues femite dhe nenfemijet
+        const data = {
+   id: id,
+   name: document.getElementById('fullname').value,
+
+  // Kam shtuar ruajtjen e emrit të babait dhe nënës në objektin e anëtarit
+      father: document.getElementById('fatherName')?.value || '',
+      mother: document.getElementById('motherName')?.value || '',
+
+
+   personalNo: document.getElementById('personalNo').value,
+   dob: document.getElementById('dob').value,
+   birthplace: document.getElementById('birthplace').value,
+   spouse: document.getElementById('spouse').value,
+   history: document.getElementById('history').value,
+   
+
+   // Kam shtuar ruajtjen e statusit të anëtarit (i gjallë/i vdekur) alive: document.getElementById('status').value === "true",
+   alive: document.getElementById('status').value === "true",
+   photo: window.currentPhotoBase64 || (existing ? existing.photo : 'https://via.placeholder.com/100'),
+
+   // ✅ RUAN PASARDHËSIT EKZISTUES
+   children: editId ? (existing.children || []) : children
+   
+    // e siperme ka qen Kam ndryshuar këtë pjesë për të ruajtur pasardhësit ekzistues gjatë editimit, dhe për të shtuar fëmijët e rinj vetëm kur krijohet një anëtar i ri
+   //children: children.length > 0 ? children : (existing?.children || [])
+//
+
+};
+        await set(ref(db, 'anetaret/' + id), data);
+        resetForm();
+    });
+
+    window.deleteMember = async (id) => { 
+        if(confirm("Fshij këtë anëtar dhe gjithë pasardhësit?")) await remove(ref(db, 'anetaret/' + id)); 
+    };
+</script>
+
+<script>
+    // kam shtuar Funksioni për të llogaritur statistikat e gjenezës
+    function llogaritStatistikat(data) {
+    let total = 0;
+    let maxGjenerata = 0;
+    // Kam shtuar variabla për të numëruar anëtarët e gjallë dhe të vdekur
+    let teGjalle = 0;
+    let teVdekur = 0;
+
+
+
+    function vizito(node, niveli) {
+        total++;
+         // Kam shtuar llogaritjen e anëtarëve të gjallë dhe të vdekur bazuar në fushën "alive"   if (node.alive === false)
+        if (node.alive === false) {
+            teVdekur++;
+        } else {
+            teGjalle++;
+        }
+
+
+        if (niveli > maxGjenerata) maxGjenerata = niveli;
+        
+        if (node.children && node.children.length > 0) {
+            node.children.forEach(child => vizito(child, niveli + 1));
+        }
+    }
+
+    data.forEach(m => vizito(m, 1));
+
+    // Këtu i dërgojmë shifrat te HTML-ja
+    document.getElementById('statTotal').innerText = total;
+    document.getElementById('statGen').innerText = maxGjenerata;
+    // Kam shtuar shfaqjen e numrit të anëtarëve të gjallë dhe të vdekur në HTML
+    document.getElementById('statAlive').innerText = teGjalle;
+    document.getElementById('statDead').innerText = teVdekur;
+}
+    // Funksioni kryesor për të shfaqur pemën
+    function renderTree(data) {
+        const tree = document.getElementById('treeDisplay');
+        tree.innerHTML = '';
+        data.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'member-item';
+            
+            div.innerHTML = `
+                <div class="member-header">
+                    <img src="${m.photo}" class="member-photo">
+                    <div style="flex:1;">
+                        <h3 style="margin:0; ${m.alive === false ? 'color:red;' : ''}">${m.name}</h3>
+                        <div class="member-details">📅 ${m.dob || '---'} | 📍 ${m.birthplace || '---'}</div>
+                         <p class="history-text">${m.history || ''}</p>
+                        
+                            <div class="${canEdit ? '' : 'hidden'}" style="margin-top:10px;">
+                            <button class="btn btn-edit" onclick="editMainMember('${m.id}')">✏️ Edito</button>
+                            <button class="btn btn-delete" onclick="deleteMember('${m.id}')">🗑️ Fshij</button>
+                            <button class="btn btn-child-add" onclick="openAddDescendantModal('${m.id}')">+ Shto Pasardhës</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="child-grid">
+                    ${generateDescendantsHtml(m, m.id, canEdit, 0)}
+                </div>
+            `;
+            tree.appendChild(div);
+        });
+    }
+    
+    // Funksioni rekursiv për të gjeneruar HTML për pasardhësit
+    function generateDescendantsHtml(node, path, canEdit, level = 0) {
+        if (!node.children || node.children.length === 0) return '';
+        
+        let html = '';
+        node.children.forEach((child, index) => {
+            const childPath = path + ',' + index;
+            html += `
+                <div class="child-item" style="margin-left: ${level * 10}px;">
+                    <div class="child-header">
+                        <img src="${child.photo || 'https://via.placeholder.com/40'}" class="child-photo-small">
+                        <div style="flex:1;">
+                            <b style="${child.alive === false ? 'color:red;' : ''}">${child.name}</b><br>
+                            <small>📅 ${child.dob || ''}</small>
+                        </div>
+                        <div class="action-buttons ${canEdit ? '' : 'hidden'}">
+                            <button class="btn btn-edit" onclick="openEditModal('${childPath}')" style="padding:2px 5px; font-size:10px;" title="Edito">✏️</button>
+                            <button class="btn btn-child-add" onclick="openAddDescendantModal('${childPath}')" style="padding:2px 5px; font-size:10px;" title="Shto Pasardhës">+</button>
+                            <button class="btn btn-delete" onclick="deleteDescendant('${childPath}')" style="padding:2px 5px; font-size:10px;" title="Fshij">🗑️</button>
+                        </div>
+                    </div>`;
+            
+            if (child.history) {
+                html += `<div style="font-size:11px; color:#666; margin-left:52px; margin-bottom:5px; font-style:italic;">📝 ${child.history.substring(0,50)}${child.history.length > 50 ? '...' : ''}</div>`;
+            }
+            
+            if (child.children && child.children.length > 0) {
+                html += `<div class="grandchild-grid">`;
+                html += generateDescendantsHtml(child, childPath, canEdit, level + 1);
+                html += `</div>`;
+            }
+            
+            html += `</div>`;
+        });
+        
+        return html;
+    }
+
+    function editMainMember(id) {
+        const m = window.familyData.find(item => item.id === id);
+        document.getElementById('editId').value = m.id;
+        document.getElementById('fullname').value = m.name || '';
+
+
+        document.getElementById('fatherName').value = m.father || '';
+        document.getElementById('motherName').value = m.mother || '';
+
+
+
+        document.getElementById('personalNo').value = m.personalNo || '';
+        document.getElementById('dob').value = m.dob || '';
+        document.getElementById('birthplace').value = m.birthplace || '';
+        document.getElementById('spouse').value = m.spouse || '';
+        document.getElementById('history').value = m.history || "";
+        window.currentPhotoBase64 = m.photo;
+        
+        document.getElementById('mainPhotoPreview').src = m.photo;
+        document.getElementById('mainPhotoPreview').style.display = 'block';
+        
+        const container = document.getElementById('formChildrenList');
+        container.innerHTML = '';
+        if(m.children) {
+            m.children.forEach(c => {
+                addChildRow();
+                const row = container.lastElementChild;
+                row.querySelector('.c-name').value = c.name || '';
+
+
+                row.querySelector('.c-father').value = c.father || '';
+                row.querySelector('.c-mother').value = c.mother || '';
+
+
+
+
+                row.querySelector('.c-personalNo').value = c.personalNo || '';
+                row.querySelector('.c-dob').value = c.dob || '';
+                row.querySelector('.c-birthplace').value = c.birthplace || '';
+                row.querySelector('.c-spouse').value = c.spouse || '';
+                row.querySelector('.c-history').value = c.history || "";
+                row.querySelector('.c-preview').src = c.photo || 'https://via.placeholder.com/40';
+            });
+        }
+        document.getElementById('mainSubmitBtn').innerText = "Përditëso";
+        document.getElementById('cancelBtn').classList.remove('hidden');
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function findNodeByPath(path) {
+        const parts = path.split(',');
+        const rootId = parts[0];
+        const root = window.familyData.find(m => m.id === rootId);
+        if (!root) return null;
+        
+        if (parts.length === 1) return root;
+        
+        let currentNode = root;
+        for (let i = 1; i < parts.length; i++) {
+            const index = parseInt(parts[i]);
+            if (!currentNode.children || !currentNode.children[index]) return null;
+            currentNode = currentNode.children[index];
+        }
+        return currentNode;
+    }
+
+    function getParentAndIndex(path) {
+        const parts = path.split(',');
+        if (parts.length === 1) return { parent: null, index: null, rootId: parts[0] };
+        
+        const parentPath = parts.slice(0, -1).join(',');
+        const index = parseInt(parts[parts.length - 1]);
+        const parent = findNodeByPath(parentPath);
+        return { parent, index, rootId: parts[0] };
+    }
+
+    function openEditModal(path) {
+        const node = findNodeByPath(path);
+        if (!node) return;
+        
+        currentEditPath = path;
+        document.getElementById('modalEditPath').value = path;
+        document.getElementById('modalEditName').value = node.name || '';
+
+        // Kam shtuar vendosjen e emrit të babait dhe nënës në modal gjatë editimit
+        document.getElementById('modalEditFather').value = node.father || '';
+        document.getElementById('modalEditMother').value = node.mother || '';
+        document.getElementById('modalEditPersonalNo').value = node.personalNo || '';
+        document.getElementById('modalEditDob').value = node.dob || '';
+        document.getElementById('modalEditBirthplace').value = node.birthplace || '';
+        document.getElementById('modalEditSpouse').value = node.spouse || '';
+        document.getElementById('modalEditHistory').value = node.history || '';
+
+
+        // Kam shtuar vendosjen e statusit të anëtarit në modal bazuar në fushën "alive"  modalEditStatus
+        document.getElementById('modalEditStatus').value = node.alive === false ? "false" : "true";
+        document.getElementById('modalEditPhotoPreview').src = node.photo || 'https://via.placeholder.com/80';
+        
+        document.getElementById('childModal').style.display = 'block';
+        
+    }
+
+    async function saveEditedMember() {
+        const path = document.getElementById('modalEditPath').value;
+        const node = findNodeByPath(path);
+        if (!node) return;
+        
+        node.name = document.getElementById('modalEditName').value;
+
+            // Kam shtuar ruajtjen e emrit të babait dhe nënës në objektin e anëtarit gjatë editimit
+        node.father = document.getElementById('modalEditFather')?.value || '';
+        node.mother = document.getElementById('modalEditMother')?.value || '';
+
+
+        node.personalNo = document.getElementById('modalEditPersonalNo').value;
+        node.dob = document.getElementById('modalEditDob').value;
+        node.birthplace = document.getElementById('modalEditBirthplace').value;
+        node.spouse = document.getElementById('modalEditSpouse').value;
+        node.history = document.getElementById('modalEditHistory').value;
+        // Kam shtuar ruajtjen e statusit të anëtarit (i gjallë/i vdekur) bazuar në fushën "alive"  modalEditStatus
+        node.alive = document.getElementById('modalEditStatus').value === "true";
+        
+        const photoInput = document.getElementById('modalEditPhotoInput');
+        if (photoInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                node.photo = e.target.result;
+                await saveNodeToFirebase(path, node);
+            };
+            reader.readAsDataURL(photoInput.files[0]);
+        } else {
+            await saveNodeToFirebase(path, node);
+        }
+        
+        closeEditModal();
+    }
+
+    async function deleteCurrentMember() {
+        if (!confirm('A jeni i sigurt që doni të fshini këtë anëtar?')) return;
+        
+        const path = currentEditPath;
+        const { parent, index, rootId } = getParentAndIndex(path);
+        
+        if (!parent) {
+            await deleteMember(rootId);
+        } else {
+            parent.children.splice(index, 1);
+            const root = window.familyData.find(m => m.id === rootId);
+            const { ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+            await set(ref(window.db, 'anetaret/' + rootId), root);
+        }
+        
+        closeEditModal();
+    }
+
+    async function deleteDescendant(path) {
+        if (!confirm('A jeni i sigurt që doni të fshini këtë anëtar?')) return;
+        
+        const { parent, index, rootId } = getParentAndIndex(path);
+        
+        if (parent) {
+            parent.children.splice(index, 1);
+            const root = window.familyData.find(m => m.id === rootId);
+            const { ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+            await set(ref(window.db, 'anetaret/' + rootId), root);
+        }
+    }
+
+    async function saveNodeToFirebase(path, updatedNode) {
+        const parts = path.split(',');
+        const rootId = parts[0];
+        const root = window.familyData.find(m => m.id === rootId);
+        
+        const { ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+        await set(ref(window.db, 'anetaret/' + rootId), root);
+    }
+
+    function openAddDescendantModal(path) {
+        const node = findNodeByPath(path);
+        if (!node) return;
+        
+        document.getElementById('addModalParentPath').value = path;
+        document.getElementById('addModalPath').innerText = 'Duke shtuar pasardhës për: ' + (node.name || 'Anëtar');
+        
+        document.getElementById('addModalName').value = '';
+
+
+        document.getElementById('addModalFather').value = '';
+        document.getElementById('addModalMother').value = '';
+
+
+
+        document.getElementById('addModalPersonalNo').value = '';
+        document.getElementById('addModalDob').value = '';
+        document.getElementById('addModalBirthplace').value = '';
+        document.getElementById('addModalSpouse').value = '';
+        document.getElementById('addModalHistory').value = '';
+        document.getElementById('addModalPhotoPreview').src = 'https://via.placeholder.com/80';
+        
+        
+        // RREGULLIMI: Vendos emrin e prindit aktual te fusha e Babait automatikisht, nese e ben value = parent.name, e vendos automatikisht emrin e babait ne fushen e babait, dhe e len fushen e nënës bosh për t'u plotësuar manualisht ose anasjelltas
+        document.getElementById('addModalFather').value = '';
+        // Lihet nena bosh qe te plotesohet manualisht ose anasjelltas
+        document.getElementById('addModalMother').value = '';
+
+
+
+        document.getElementById('addDescendantModal').style.display = 'block';
+    }
+
+    async function saveDescendant() {
+        const parentPath = document.getElementById('addModalParentPath').value;
+        const parent = findNodeByPath(parentPath);
+        if (!parent) return;
+        
+        const name = document.getElementById('addModalName').value;
+        if (!name) {
+            alert('Shkruani emrin!');
+            return;
+        }
+        
+        if (!parent.children) parent.children = [];
+        
+        const newDescendant = {
+            name: name,
+
+            // Kam shtuar ruajtjen e emrit të babait dhe nënës në objektin e pasardhësit
+                father: document.getElementById('addModalFather')?.value || '',
+                mother: document.getElementById('addModalMother')?.value || '',
+
+                alive: document.getElementById('addModalStatus').value === "true",
+
+            personalNo: document.getElementById('addModalPersonalNo').value,
+            dob: document.getElementById('addModalDob').value,
+            birthplace: document.getElementById('addModalBirthplace').value,
+            spouse: document.getElementById('addModalSpouse').value,
+            history: document.getElementById('addModalHistory').value,
+            photo: document.getElementById('addModalPhotoPreview').src,
+            children: []
+        };
+        
+        parent.children.push(newDescendant);
+        
+        const rootId = parentPath.split(',')[0];
+        const root = window.familyData.find(m => m.id === rootId);
+        const { ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+        await set(ref(window.db, 'anetaret/' + rootId), root);
+        
+        closeAddModal();
+    }
+
+    document.getElementById('addModalPhotoInput').addEventListener('change', function(e) {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('addModalPhotoPreview').src = ev.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    document.getElementById('modalEditPhotoInput').addEventListener('change', function(e) {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('modalEditPhotoPreview').src = ev.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('mainPhotoPreview').src = ev.target.result;
+                document.getElementById('mainPhotoPreview').style.display = 'block';
+                window.currentPhotoBase64 = ev.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    function closeEditModal() {
+        document.getElementById('childModal').style.display = 'none';
+        document.getElementById('modalEditPhotoInput').value = '';
+        currentEditPath = '';
+    }
+
+    function closeAddModal() {
+        document.getElementById('addDescendantModal').style.display = 'none';
+        document.getElementById('addModalPhotoInput').value = '';
+    }
+
+    function addChildRow() {
+        const container = document.getElementById('formChildrenList');
+        const div = document.createElement('div');
+        div.className = 'child-form-row';
+        const tId = 'img_' + Math.random().toString(36).substr(2, 5);
+        
+        div.innerHTML = `
+            <div class="form-row" style="margin-bottom:10px;">
+                <div style="flex:1;">
+                    <label>Emri & Mbiemri</label>
+                    <input type="text" class="c-name" placeholder="Emri & Mbiemri">
+                </div>
+            
+                <div style="flex:1;">
+                    <label style="font-size:12px;">Babai</label>
+                    <input type="text" class="c-father" placeholder="Emri i Babait">
+                </div>
+            
+                <div style="flex:1;">
+                    <label style="font-size:12px;">Nëna</label>
+                    <input type="text" class="c-mother" placeholder="Emri i Nënës">
+                </div>
+            </div>
+            
+            <div class="form-row" style="margin-bottom:10px;">
+                <div style="flex:1;">
+                    <label style="font-size:12px;">Nr. Personal</label>
+                    <input type="text" class="c-personalNo" placeholder="Nr. Personal">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:12px;">Vendlindja</label>
+                    <input type="text" class="c-birthplace" placeholder="Vendlindja">
+                </div>
+            </div>
+            
+            <div class="form-row" style="margin-bottom:10px;">
+                <div style="flex:1;">
+                    <label style="font-size:12px;">Data e Lindjes</label>
+                    <input type="date" class="c-dob">
+                </div>
+
+                 <!-- Kam shtuar dropdown për statusin e anëtarit (i gjallë/i vdekur) -->
+                
+                 <label style="font-size:12px;">Statusi</label>
+                 <select class="c-status" style="margin-bottom:10px;">
+                     <option value="true">🟢 I Gjallë</option>
+                     <option value="false">⚫ I Vdekur</option>
+                 </select>
+
+
+
+
+                <div style="flex:1;">
+                    <label style="font-size:12px;">Bashkëshorti/ja</label>
+                    <input type="text" class="c-spouse" placeholder="Bashkëshorti/ja">
+                </div>
+            </div>
+            
+            <label style="font-size:12px;">Historiku i familjes (biografia)...</label>
+            <textarea class="c-history" placeholder="Historiku..." rows="3" style="margin-bottom:10px;"></textarea>
+            
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+                <div style="flex:1;">
+                    <label style="font-size:12px;">Foto</label>
+                    <input type="file" onchange="previewInRow(this, '${tId}')" style="font-size:12px;">
+                </div>
+                <img id="${tId}" class="c-preview photo-thumb" src="https://via.placeholder.com/40">
+                <button type="button" class="btn-delete" style="padding:5px 10px;" onclick="this.closest('.child-form-row').remove()">✕</button>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function previewInRow(input, imgId) {
+        if(input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => document.getElementById(imgId).src = e.target.result;
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function openTreeView() {
+        const container = document.getElementById('treePrintArea');
+        let txt = "GJENEZA FAMILJARE\n==================\n\n";
+        
+        function addToTree(node, level = 0) {
+            const indent = "  ".repeat(level);
+            txt += indent + (level > 0 ? "└─ " : "") + node.name;
+            if (node.dob) txt += " (" + node.dob + ")";
+            txt += "\n";
+            
+            if (node.children) {
+                node.children.forEach(child => {
+                    addToTree(child, level + 1);
+                });
+            }
+        }
+        
+        window.familyData.forEach(m => {
+            addToTree(m);
+            txt += "\n";
+        });
+        
+        container.textContent = txt;
+        document.getElementById('treeModal').style.display = 'block';
+    }
+
+    function downloadTreePDF() {
+        const element = document.getElementById('treePrintArea');
+        html2pdf().from(element).save('pema_familjare.pdf');
+    }
+    
+    //kamshtuar Funksionin për të shkarkuar të dhënat në format JSON
+    function shkarkoJSON() {
+    // Kontrollojmë nëse ka të dhëna për të shkarkuar
+    if (!window.familyData || window.familyData.length === 0) {
+        alert("Nuk ka të dhëna për të shkarkuar!");
+        return;
+    }
+
+    // Konvertojmë të dhënat në formatin JSON me hapësira për t'u lexuar më lehtë
+    const dataStr = JSON.stringify(window.familyData, null, 4);
+    
+    // Krijojmë një Blob (objekt binar) me të dhënat JSON
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+    // Krijojmë një element "a" të padukshëm për të simuluar klikimin dhe shkarkimin
+    const exportFileDefaultName = 'antaret.json';
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    
+    // Ekzekutojmë shkarkimin
+    document.body.appendChild(linkElement);
+    linkElement.click();
+    document.body.removeChild(linkElement);
+}
+    function resetForm() {
+        document.getElementById('familyForm').reset();
+        document.getElementById('formChildrenList').innerHTML = '';
+        document.getElementById('editId').value = '';
+        document.getElementById('mainSubmitBtn').innerText = "Ruaj në Cloud";
+        document.getElementById('cancelBtn').classList.add('hidden');
+        document.getElementById('mainPhotoPreview').style.display = 'none';
+        window.currentPhotoBase64 = '';
+    }
+    
+    //function searchGlobal() {
+    //    const q = document.getElementById('searchInput').value.toLowerCase();
+    //    renderTree(window.familyData.filter(m => m.name.toLowerCase().includes(q)));
+//
+    //    
+    //}
+
+
+    function searchGlobal() {
+    const term = document.getElementById("searchInput").value.toLowerCase().trim();
+
+    if (!term) {
+        renderTree(window.familyData);
+        return;
+    }
+
+    // Funksion rekursiv për filtrimin
+    function filtroNode(node) {
+        let match = false;
+
+        // Kontrollo vetë node
+        if (
+            (node.name && node.name.toLowerCase().includes(term)) ||
+            (node.father && node.father.toLowerCase().includes(term)) ||
+            (node.mother && node.mother.toLowerCase().includes(term)) ||
+            (node.personalNo && node.personalNo.toLowerCase().includes(term)) ||
+            (node.birthplace && node.birthplace.toLowerCase().includes(term))
+        ) {
+            match = true;
+        }
+
+        let filteredChildren = [];
+
+        if (node.children && node.children.length > 0) {
+            node.children.forEach(child => {
+                const result = filtroNode(child);
+                if (result) {
+                    filteredChildren.push(result);
+                    match = true;
+                }
+            });
+        }
+
+        if (match) {
+            return {
+                ...node,
+                children: filteredChildren
+            };
+        }
+
+        return null;
+    }
+
+    const filteredData = [];
+
+    window.familyData.forEach(member => {
+        const result = filtroNode(member);
+        if (result) filteredData.push(result);
+    });
+
+    renderTree(filteredData);
+}
+</script>
+</body>
+</html>
