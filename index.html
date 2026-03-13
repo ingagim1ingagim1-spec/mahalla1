@@ -1262,11 +1262,11 @@ const GITHUB_TOKEN = "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";
 
     async function loadFromGitHub() {
 
-const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+const url = `https://api.github.com/repos/${ingagim1ingagim1-spec}/${mahalla1}/contents/${antaret.json}`;
 
 const res = await fetch(url,{
 headers:{
-Authorization:`token ${GITHUB_TOKEN}`
+Authorization:`token ${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}`
 }
 });
 
@@ -1285,14 +1285,14 @@ renderTree(window.familyData);
 
 async function saveToGitHub(data){
 
-const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+const url = `https://api.github.com/repos/${ingagim1ingagim1-spec}/${mahalla1}/contents/${antaret.json}`;
 
 const content = btoa(JSON.stringify(data,null,2));
 
 await fetch(url,{
 method:"PUT",
 headers:{
-Authorization:`token ${GITHUB_TOKEN}`,
+Authorization:`token ${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}`,
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
