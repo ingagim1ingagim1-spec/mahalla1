@@ -1260,13 +1260,15 @@ const GITHUB_TOKEN = "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";
 
 
 
-    async function loadFromGitHub() {
+let githubSha = null;
 
-const url = `https://api.github.com/repos/${ingagim1ingagim1-spec}/${mahalla1}/contents/${antaret.json}`;
+async function loadFromGitHub(){
+
+const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
 
 const res = await fetch(url,{
 headers:{
-Authorization:`token ${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}`
+Authorization:`token ${GITHUB_TOKEN}`
 }
 });
 
@@ -1279,20 +1281,23 @@ const decoded = atob(data.content);
 window.familyData = JSON.parse(decoded);
 
 renderTree(window.familyData);
+
 }
+
+
 
 
 
 async function saveToGitHub(data){
 
-const url = `https://api.github.com/repos/${ingagim1ingagim1-spec}/${mahalla1}/contents/${antaret.json}`;
+const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
 
 const content = btoa(JSON.stringify(data,null,2));
 
 await fetch(url,{
 method:"PUT",
 headers:{
-Authorization:`token ${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}`,
+Authorization:`token ${GITHUB_TOKEN}`,
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
@@ -1303,7 +1308,6 @@ sha:githubSha
 });
 
 }
-
 
 loadFromGitHub();
     
