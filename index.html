@@ -417,10 +417,6 @@
 
 <script>
 
-    const GITHUB_USER = "ingagim1ingagim1-spec";
-const GITHUB_REPO = "mahalla1";
-const GITHUB_FILE = "antaret.json";
-const GITHUB_TOKEN = "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";
 
 
 
@@ -625,6 +621,9 @@ const GITHUB_TOKEN = "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";
 
 };
         await set(ref(db, 'anetaret/' + id), data);
+
+setTimeout(()=>saveToGitHub(window.familyData),1000);
+
         resetForm();
     });
 
@@ -634,6 +633,16 @@ const GITHUB_TOKEN = "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";
 </script>
 
 <script>
+
+    const GITHUB_USER = "ingagim1ingagim1-spec";
+const GITHUB_REPO = "mahalla1";
+const GITHUB_FILE = "antaret.json";
+const GITHUB_TOKEN = "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";
+
+
+
+
+
     // kam shtuar Funksioni për të llogaritur statistikat e gjenezës
     function llogaritStatistikat(data) {
     let total = 0;
@@ -1242,6 +1251,62 @@ const GITHUB_TOKEN = "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";
 
     renderTree(filteredData);
 }
+
+
+
+
+
+
+
+
+
+    async function loadFromGitHub() {
+
+const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+
+const res = await fetch(url,{
+headers:{
+Authorization:`token ${GITHUB_TOKEN}`
+}
+});
+
+const data = await res.json();
+
+githubSha = data.sha;
+
+const decoded = atob(data.content);
+
+window.familyData = JSON.parse(decoded);
+
+renderTree(window.familyData);
+}
+
+
+
+async function saveToGitHub(data){
+
+const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+
+const content = btoa(JSON.stringify(data,null,2));
+
+await fetch(url,{
+method:"PUT",
+headers:{
+Authorization:`token ${GITHUB_TOKEN}`,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+message:"update family data",
+content:content,
+sha:githubSha
+})
+});
+
+}
+
+
+loadFromGitHub();
+    
 </script>
 </body>
 </html>
