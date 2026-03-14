@@ -1251,8 +1251,7 @@ setTimeout(()=>saveToGitHub(window.familyData),1000);
 
 
 
-
-// GitHub konfigurimi
+// GitHub konfigurimi - KETU TOKEN-I DUHET SI STRING
 const GITHUB_USER = "ingagim1ingagim1-spec";
 const GITHUB_REPO = "mahalla1";
 const GITHUB_FILE = "antaret.json";
@@ -1299,16 +1298,17 @@ async function loadFromGitHub() {
         
         const response = await fetch(url, {
             headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Authorization': `token ${GITHUB_TOKEN}`,  // PËRDORIM KONSTANTEN, JO VARIABËL
                 'Accept': 'application/vnd.github.v3+json'
             }
         });
         
         if (response.status === 404) {
             console.log('Skedari nuk ekziston në GitHub, fillojmë bosh');
-            window.familyData = [];
-            renderTree(window.familyData);
-            llogaritStatistikat(window.familyData);
+            if (window.familyData && window.familyData.length > 0) {
+                renderTree(window.familyData);
+                llogaritStatistikat(window.familyData);
+            }
             return;
         }
         
@@ -1320,23 +1320,21 @@ async function loadFromGitHub() {
         const data = await response.json();
         githubSha = data.sha;
         
-        // Decode base64 content (duhet të përdorim një metodë që punon me Unicode)
+        // Decode base64 content
         const content = decodeURIComponent(escape(atob(data.content)));
-        window.familyData = JSON.parse(content);
+        const githubData = JSON.parse(content);
         
-        console.log('Të dhënat u ngarkuan nga GitHub, total anëtarë:', window.familyData.length);
-        renderTree(window.familyData);
-        llogaritStatistikat(window.familyData);
+        console.log('Të dhënat u ngarkuan nga GitHub, total anëtarë:', githubData.length);
         
-    } catch (error) {
-        console.error('Error loading from GitHub:', error);
-        alert('Problem me ngarkimin nga GitHub: ' + error.message + '\n\nKontrolloni token-in dhe repository.');
-        
-        // Nëse dështon GitHub, provojmë të ngarkojmë nga Firebase
-        if (window.familyData && window.familyData.length > 0) {
+        // Vetëm nëse nuk ka të dhëna nga Firebase
+        if (!window.familyData || window.familyData.length === 0) {
+            window.familyData = githubData;
             renderTree(window.familyData);
             llogaritStatistikat(window.familyData);
         }
+        
+    } catch (error) {
+        console.error('Error loading from GitHub:', error);
     }
 }
 
@@ -1359,7 +1357,6 @@ async function saveToGitHub(data) {
         
         // Konvertojmë të dhënat në JSON string dhe pastaj në base64
         const jsonString = JSON.stringify(data, null, 2);
-        // Përdorim këtë metodë për të punuar me Unicode
         const content = btoa(unescape(encodeURIComponent(jsonString)));
         
         const body = {
@@ -1376,7 +1373,7 @@ async function saveToGitHub(data) {
         const response = await fetch(url, {
             method: 'PUT',
             headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Authorization': `token ${GITHUB_TOKEN}`,  // PËRDORIM KONSTANTEN
                 'Content-Type': 'application/json',
                 'Accept': 'application/vnd.github.v3+json'
             },
@@ -1389,40 +1386,62 @@ async function saveToGitHub(data) {
         }
         
         const result = await response.json();
-        githubSha = result.content.sha; // Ruajmë SHA-në e re
+        githubSha = result.content.sha;
         
-        console.log('Të dhënat u ruajtën në GitHub me sukses!');
+        console.log('✅ Të dhënat u ruajtën në GitHub me sukses!');
         
     } catch (error) {
-        console.error('Error saving to GitHub:', error);
-        // Mos e shfaqim alert për çdo ruajtje, vetëm nëse është kritike
-        if (error.message.includes('403')) {
-            alert('Problem me ruajtjen në GitHub: Token-i nuk ka permission të mjaftueshëm.');
-        }
+        console.error('❌ Error saving to GitHub:', error);
     }
 }
 
-// Modifikojmë event listener-in e Firebase për të sinkronizuar me GitHub
-onValue(ref(db, 'anetaret/'), (snapshot) => {
-    const firebaseData = snapshot.val() ? Object.values(snapshot.val()) : [];
-    window.familyData = firebaseData;
-    renderTree(window.familyData);
-    llogaritStatistikat(window.familyData);
-    
-    // Ruaj në GitHub kur të dhënat ndryshojnë
-    saveToGitHub(firebaseData);
-});
-
-// Në vend të thirrjes loadFromGitHub() në fund, përdorim Firebase
-// loadFromGitHub(); // Kjo komentohet sepse përdorim Firebase
-
-// Shtojmë një buton për të rifreskuar nga GitHub manualisht
-function refreshFromGitHub() {
-    loadFromGitHub();
+// Testojmë token-in
+async function testGitHubToken() {
+    try {
+        console.log('Testimi i token-it GitHub...');
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`, {
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ GitHub token është valid! Repo:', data.name);
+            return true;
+        } else {
+            const error = await response.json();
+            console.error('❌ GitHub token nuk është valid:', error.message);
+            console.log('Status:', response.status);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Error testing GitHub token:', error);
+        return false;
+    }
 }
 
-// Shtojmë butonin në UI (opsionale)
-// Mund të shtoni këtë buton diku në navbar
+// Ngarkojmë nga GitHub pasi të testohet token-i
+setTimeout(async () => {
+    const isValid = await testGitHubToken();
+    if (isValid) {
+        loadFromGitHub();
+    } else {
+        console.log('Përdorim Firebase për të dhënat');
+    }
+}, 1000);
+
+// Funksion për të rifreskuar nga GitHub manualisht
+window.refreshFromGitHub = function() {
+    testGitHubToken().then(isValid => {
+        if (isValid) {
+            loadFromGitHub();
+        } else {
+            alert('Token-i GitHub nuk është valid!');
+        }
+    });
+};
     
 </script>
 </body>
