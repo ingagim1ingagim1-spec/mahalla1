@@ -634,11 +634,6 @@ setTimeout(()=>saveToGitHub(window.familyData),1000);
 
 <script>
 
-    const GITHUB_USER = "ingagim1ingagim1-spec";
-const GITHUB_REPO = "mahalla1";
-const GITHUB_FILE = "antaret.json";
-const GITHUB_TOKEN ="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";
-
 
 
 
@@ -1257,60 +1252,177 @@ const GITHUB_TOKEN ="github_pat_11B2D6NCY0jEOTi6izM7LI_VeaQY0BbPiGEWiduOWlBp7cVm
 
 
 
-
-
+// GitHub konfigurimi
+const GITHUB_USER = "ingagim1ingagim1-spec";
+const GITHUB_REPO = "mahalla1";
+const GITHUB_FILE = "antaret.json";
+const GITHUB_TOKEN = "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";
 
 let githubSha = null;
 
-async function loadFromGitHub(){
-
-const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
-
-const res = await fetch(url,{
-headers:{
-Authorization:`token ${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}`
+// Funksioni për të marrë SHA-në e skedarit
+async function getGithubFileSha() {
+    const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+    
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+        
+        if (response.status === 404) {
+            console.log('Skedari nuk ekziston në GitHub');
+            return null;
+        }
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`GitHub API error: ${response.status} - ${errorData.message}`);
+        }
+        
+        const data = await response.json();
+        return data.sha;
+    } catch (error) {
+        console.error('Error getting file SHA:', error);
+        return null;
+    }
 }
+
+// Funksioni për të ngarkuar nga GitHub
+async function loadFromGitHub() {
+    const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+    
+    try {
+        console.log('Duke u lidhur me GitHub...');
+        
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+        
+        if (response.status === 404) {
+            console.log('Skedari nuk ekziston në GitHub, fillojmë bosh');
+            window.familyData = [];
+            renderTree(window.familyData);
+            llogaritStatistikat(window.familyData);
+            return;
+        }
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`GitHub API error: ${response.status} - ${errorData.message}`);
+        }
+        
+        const data = await response.json();
+        githubSha = data.sha;
+        
+        // Decode base64 content (duhet të përdorim një metodë që punon me Unicode)
+        const content = decodeURIComponent(escape(atob(data.content)));
+        window.familyData = JSON.parse(content);
+        
+        console.log('Të dhënat u ngarkuan nga GitHub, total anëtarë:', window.familyData.length);
+        renderTree(window.familyData);
+        llogaritStatistikat(window.familyData);
+        
+    } catch (error) {
+        console.error('Error loading from GitHub:', error);
+        alert('Problem me ngarkimin nga GitHub: ' + error.message + '\n\nKontrolloni token-in dhe repository.');
+        
+        // Nëse dështon GitHub, provojmë të ngarkojmë nga Firebase
+        if (window.familyData && window.familyData.length > 0) {
+            renderTree(window.familyData);
+            llogaritStatistikat(window.familyData);
+        }
+    }
+}
+
+// Funksioni për të ruajtur në GitHub
+async function saveToGitHub(data) {
+    if (!data || data.length === 0) {
+        console.log('Nuk ka të dhëna për të ruajtur');
+        return;
+    }
+    
+    const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+    
+    try {
+        console.log('Duke ruajtur në GitHub...');
+        
+        // Nëse nuk e kemi SHA-në, e marrim fillimisht
+        if (!githubSha) {
+            githubSha = await getGithubFileSha();
+        }
+        
+        // Konvertojmë të dhënat në JSON string dhe pastaj në base64
+        const jsonString = JSON.stringify(data, null, 2);
+        // Përdorim këtë metodë për të punuar me Unicode
+        const content = btoa(unescape(encodeURIComponent(jsonString)));
+        
+        const body = {
+            message: 'Përditësim i të dhënave familjare - ' + new Date().toLocaleString(),
+            content: content,
+            branch: 'main'
+        };
+        
+        // Nëse skedari ekziston, shtojmë SHA-në për update
+        if (githubSha) {
+            body.sha = githubSha;
+        }
+        
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify(body)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`GitHub API error: ${response.status} - ${errorData.message}`);
+        }
+        
+        const result = await response.json();
+        githubSha = result.content.sha; // Ruajmë SHA-në e re
+        
+        console.log('Të dhënat u ruajtën në GitHub me sukses!');
+        
+    } catch (error) {
+        console.error('Error saving to GitHub:', error);
+        // Mos e shfaqim alert për çdo ruajtje, vetëm nëse është kritike
+        if (error.message.includes('403')) {
+            alert('Problem me ruajtjen në GitHub: Token-i nuk ka permission të mjaftueshëm.');
+        }
+    }
+}
+
+// Modifikojmë event listener-in e Firebase për të sinkronizuar me GitHub
+onValue(ref(db, 'anetaret/'), (snapshot) => {
+    const firebaseData = snapshot.val() ? Object.values(snapshot.val()) : [];
+    window.familyData = firebaseData;
+    renderTree(window.familyData);
+    llogaritStatistikat(window.familyData);
+    
+    // Ruaj në GitHub kur të dhënat ndryshojnë
+    saveToGitHub(firebaseData);
 });
 
-const data = await res.json();
+// Në vend të thirrjes loadFromGitHub() në fund, përdorim Firebase
+// loadFromGitHub(); // Kjo komentohet sepse përdorim Firebase
 
-githubSha = data.sha;
-
-const decoded = atob(data.content);
-
-window.familyData = JSON.parse(decoded);
-
-renderTree(window.familyData);
-
+// Shtojmë një buton për të rifreskuar nga GitHub manualisht
+function refreshFromGitHub() {
+    loadFromGitHub();
 }
 
-
-
-
-
-async function saveToGitHub(data){
-
-const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
-
-const content = btoa(JSON.stringify(data,null,2));
-
-await fetch(url,{
-method:"PUT",
-headers:{
-Authorization:`token ${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}`,
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-message:"update family data",
-content:content,
-sha:githubSha
-})
-});
-
-}
-
-
-loadFromGitHub();
+// Shtojmë butonin në UI (opsionale)
+// Mund të shtoni këtë buton diku në navbar
     
 </script>
 </body>
